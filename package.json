@@ -4,7 +4,8 @@
   "description": "Terminal-based BBS for the Solo house",
   "main": "src/index.js",
   "bin": {
-    "solo-os": "./bin/solo-os"
+    "solo-os": "./bin/solo-os",
+    "solo": "./bin/solo-os"
   },
   "scripts": {
     "start": "node src/index.js",

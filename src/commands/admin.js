@@ -1,140 +1,150 @@
 /**
- * Admin command - manage user roles and permissions
+ * Admin commands - user management and system administration
  */
 
 const { registerCommand } = require('./index');
 const { theme } = require('../ui/terminal');
-const { getUserByUsername } = require('../models/user');
+const { getUserByUsername, listUsers } = require('../models/user');
 const { getDb } = require('../db/setup');
 
-/**
- * Promote a user to admin status
- */
-function promoteUser(db, userId) {
-  const stmt = db.prepare(`
-    UPDATE users 
-    SET is_admin = 1
-    WHERE id = ?
-  `);
-  
-  return stmt.run(userId);
+function listUsersHandler(args, context) {
+  // No login required - anyone can see user list
+  try {
+    const db = getDb();
+    const users = listUsers(db);
+    
+    let output = theme.primary('All Users') + '\n\n';
+    output += theme.secondary('Total users: ') + users.length + '\n\n';
+    
+    for (const user of users) {
+      const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString() : 'Never';
+      const created = new Date(user.created_at).toLocaleString();
+      
+      // If it's the current user, highlight them
+      const isCurrentUser = context.user && user.id === context.user.id;
+      if (isCurrentUser) {
+        output += theme.primary('→ ');
+      } else {
+        output += '  ';
+      }
+      
+      output += theme.highlight(user.username) + 
+                (user.is_admin ? theme.accent(' (Admin)') : '') + '\n';
+      
+      // Show full details for admins, less details for regular users
+      if (context.user && context.user.is_admin) {
+        output += theme.dim(`  ID: ${user.id} | Created: ${created} | Last login: ${lastLogin}`) + '\n';
+      } else {
+        output += theme.dim(`  Created: ${created}`) + '\n';
+      }
+      
+      if (user.status) {
+        output += theme.info('  Status: ') + user.status + '\n';
+      }
+      
+      output += '\n';
+    }
+    
+    return output;
+  } catch (error) {
+    return theme.error(`Failed to list users: ${error.message}`);
+  }
 }
 
-/**
- * Demote a user from admin status
- */
-function demoteUser(db, userId) {
-  const stmt = db.prepare(`
-    UPDATE users 
-    SET is_admin = 0
-    WHERE id = ?
-  `);
-  
-  return stmt.run(userId);
-}
-
-/**
- * List all users with their admin status
- */
-function listUsers(db) {
-  return db.prepare(`
-    SELECT id, username, is_admin, created_at, last_login
-    FROM users
-    ORDER BY username
-  `).all();
-}
-
-/**
- * Admin command handler
- */
-function adminHandler(args, context) {
+function promoteUserHandler(args, context) {
   // Require admin privileges
   if (!context.user || !context.user.is_admin) {
     return theme.error('This command requires admin privileges.');
   }
-
-  const db = getDb();
   
-  // No arguments - show admin help
-  if (args.length === 0) {
-    return theme.error('Usage: admin promote <username> | admin demote <username> | admin list');
+  // Validate arguments
+  if (args.length < 1) {
+    return theme.error('Usage: promote <username>');
   }
   
-  const action = args[0].toLowerCase();
+  const username = args[0];
   
-  // List all users with their admin status
-  if (action === 'list') {
-    const users = listUsers(db);
-    
-    let output = theme.primary('User List') + '\\n\\n';
-    
-    for (const user of users) {
-      const status = user.is_admin ? theme.accent('(Admin)') : '';
-      output += theme.highlight(user.username) + ' ' + status + '\\n';
-      output += theme.dim(`Created: ${new Date(user.created_at).toLocaleString()}`);
-      
-      if (user.last_login) {
-        output += theme.dim(` | Last login: ${new Date(user.last_login).toLocaleString()}`);
-      }
-      
-      output += '\\n\\n';
-    }
-    
-    return output;
-  }
-  
-  // Promote a user to admin
-  if (action === 'promote' && args.length > 1) {
-    const targetUsername = args[1];
-    const user = getUserByUsername(db, targetUsername);
+  try {
+    const db = getDb();
+    const user = getUserByUsername(db, username);
     
     if (!user) {
-      return theme.error(`User '${targetUsername}' not found`);
+      return theme.error(`User '${username}' not found.`);
     }
     
     if (user.is_admin) {
-      return theme.warning(`User '${targetUsername}' is already an admin`);
+      return theme.warning(`User '${username}' is already an admin.`);
     }
     
-    promoteUser(db, user.id);
-    return theme.success(`User '${targetUsername}' has been promoted to admin status`);
+    // Promote the user
+    db.prepare('UPDATE users SET is_admin = 1 WHERE id = ?').run(user.id);
+    
+    return theme.success(`User '${username}' has been promoted to admin.`);
+  } catch (error) {
+    return theme.error(`Failed to promote user: ${error.message}`);
+  }
+}
+
+function demoteUserHandler(args, context) {
+  // Require admin privileges
+  if (!context.user || !context.user.is_admin) {
+    return theme.error('This command requires admin privileges.');
   }
   
-  // Demote a user from admin
-  if (action === 'demote' && args.length > 1) {
-    const targetUsername = args[1];
-    const user = getUserByUsername(db, targetUsername);
+  // Validate arguments
+  if (args.length < 1) {
+    return theme.error('Usage: demote <username>');
+  }
+  
+  const username = args[0];
+  
+  // Don't allow self-demotion
+  if (username === context.user.username) {
+    return theme.error('You cannot demote yourself.');
+  }
+  
+  try {
+    const db = getDb();
+    const user = getUserByUsername(db, username);
     
     if (!user) {
-      return theme.error(`User '${targetUsername}' not found`);
+      return theme.error(`User '${username}' not found.`);
     }
     
     if (!user.is_admin) {
-      return theme.warning(`User '${targetUsername}' is not an admin`);
+      return theme.warning(`User '${username}' is not an admin.`);
     }
     
-    // Prevent user from demoting themselves if they're the only admin
-    if (user.id === context.user.id) {
-      const adminCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 1').get();
-      
-      if (adminCount.count <= 1) {
-        return theme.error('Cannot demote the last admin user');
-      }
-    }
+    // Demote the user
+    db.prepare('UPDATE users SET is_admin = 0 WHERE id = ?').run(user.id);
     
-    demoteUser(db, user.id);
-    return theme.success(`User '${targetUsername}' has been demoted from admin status`);
+    return theme.success(`User '${username}' has been demoted from admin.`);
+  } catch (error) {
+    return theme.error(`Failed to demote user: ${error.message}`);
   }
-  
-  return theme.error('Invalid admin command. Use: admin promote <username> | admin demote <username> | admin list');
 }
 
 function register() {
-  registerCommand('admin', {
-    description: 'Manage user roles and permissions',
-    usage: 'admin promote <username> | admin demote <username> | admin list',
-    adminOnly: true,
-    handler: adminHandler
+  registerCommand('promote', {
+    description: 'Promote a user to admin',
+    usage: 'promote <username>',
+    handler: promoteUserHandler,
+    adminOnly: true
+  });
+  
+  registerCommand('demote', {
+    description: 'Demote a user from admin',
+    usage: 'demote <username>',
+    handler: demoteUserHandler,
+    adminOnly: true
+  });
+  
+  registerCommand('users', {
+    description: 'List all users in the system',
+    usage: 'users',
+    aliases: ['list-users', 'who'],
+    handler: listUsersHandler,
+    adminOnly: false
   });
 }
 

@@ -232,3 +232,46 @@ The SOLO-OS project has evolved into a robust, secure, and feature-complete bull
 The personalized content for Tyler Willis gives the system an authentic feel, and the GitHub repository makes it accessible to the wider community for contributions and improvements.
 
 This system now combines nostalgic BBS aesthetics with modern security practices and extensibility features, making it both a fun throwback and a practical communication tool for the Solo house community.
+
+## Entry 5: Improved Usability and CLI Experience
+
+This phase of development focused on enhancing the user experience and fixing various issues to make SOLO-OS more robust and user-friendly:
+
+### 1. Simplified Command Execution
+- Implemented global `solo` command for easier access
+  - Added the executable to npm bin for global access
+  - Modified bin script to handle CLI mode with `solo -c` flag
+  - Eliminated need for `npm run` commands for standard usage
+
+### 2. Fixed Security and UX Issues
+- Properly implemented password handling in login/register flows
+  - Fixed login with secure password prompt when no password provided
+  - Added password confirmation during registration
+  - Fixed issues with plaintext password exposure
+  - Prevented app crashes from improper password input
+
+### 3. Enhanced Display Output
+- Resolved newline rendering issues in the terminal UI
+  - Fixed escape sequences showing as literal '\n' text
+  - Implemented proper text formatting for command outputs
+  - Enhanced welcome screen with clearer user instructions
+
+### 4. Improved Exit Handling
+- Added multiple ways to safely exit the application
+  - Fixed Ctrl+C handling with proper terminal cleanup
+  - Added `quit` and `exit` commands to the help system
+  - Ensured consistent exit behavior across UI modes
+
+### 5. Enhanced Community Features
+- Added user discovery with the `users` command
+  - Implemented comprehensive user listing available to all
+  - Added different detail levels based on user permissions
+  - Created feature parity between UI and CLI modes
+
+### 6. System Resilience
+- Improved error handling throughout the application
+  - Added graceful exit handling with cleanup
+  - Fixed command parsing and execution issues
+  - Enhanced display of error messages to users
+
+The system now provides a much more polished experience with both the full terminal UI and the CLI-only mode. Users can interact with SOLO-OS through simple, intuitive commands, and the interface handles edge cases gracefully.

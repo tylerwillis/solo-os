@@ -104,6 +104,9 @@ Core command set with abbreviations:
 - `weekly` (W): Create weekly accountability post
 - `profile`/`pr`: View or update user profile
 - `admin`: Manage user roles and permissions (admin only)
+- `users`/`list-users`/`who`: List all users in the system
+- `quit`/`exit`: Safely exit the application
+- `clear`/`cls`: Clear the terminal screen
 
 ## Implementation Status
 
@@ -151,7 +154,15 @@ Core command set with abbreviations:
 - Custom prompts and system messages
 
 ## Current Status
-SOLO-OS is now fully implemented with all planned features, plus additional security and administrative capabilities. The system is available on GitHub at github.com/tylerwillis/solo-os and can be installed and run on any system with Node.js.
+SOLO-OS is now fully implemented with all planned features, plus additional security, administrative capabilities, and improved usability. The system is available on GitHub at github.com/tylerwillis/solo-os and can be installed and run on any system with Node.js using the simple `solo` command.
+
+### Latest Improvements
+- **Simplified Command Access**: Users can now run the application by simply typing `solo` or `solo -c` for CLI mode
+- **Enhanced User Interface**: Fixed display issues and improved text formatting
+- **Safer Authentication**: Proper password handling with security and validation
+- **Community Features**: User discovery with the `users` command
+- **Improved Exit Options**: Multiple ways to safely exit (Ctrl+C, `quit`, or `exit`)
+- **System Resilience**: Better error handling and crash prevention
 
 ## Future Expansion Ideas
 - Integration with productivity tools (GitHub, Notion, etc.)
@@ -160,3 +171,5 @@ SOLO-OS is now fully implemented with all planned features, plus additional secu
 - Voice announcements via house speakers
 - More robust database with migration support
 - Enhanced file sharing capabilities
+- Multi-user chat functionality
+- Enhanced search capabilities across all content types

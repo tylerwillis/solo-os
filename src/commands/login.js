@@ -15,13 +15,19 @@ function loginHandler(args, context) {
 
   // Validate arguments
   if (args.length < 1) {
-    return theme.error('Usage: login <username> [password]');
+    return theme.error('Usage: login <username>');
   }
 
   const username = args[0];
-  // In a real application, we would use a secure method to input the password
-  // For this demo, we'll allow passing it as an argument or using the username as the password
-  const password = args.length > 1 ? args[1] : username;
+  const password = args.length > 1 ? args[1] : null;
+  
+  // If no password provided and we're not in cli.js (which handles the password prompt)
+  if (!password) {
+    return {
+      success: false,
+      error: 'No password provided'
+    };
+  }
 
   try {
     const db = getDb();
@@ -51,7 +57,7 @@ function logoutHandler(args, context) {
 function register() {
   registerCommand('login', {
     description: 'Log in to the system',
-    usage: 'login <username>',
+    usage: 'login <username> [password]',
     aliases: ['l'],
     handler: loginHandler
   });

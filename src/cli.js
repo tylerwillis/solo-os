@@ -39,6 +39,7 @@ function showWelcome() {
   console.log(chalk.bold.white('  post (p)') + ' - Create a bulletin board post');
   console.log(chalk.bold.white('  guest (g)') + ' - Sign the guestbook');
   console.log(chalk.bold.white('  make (m)') + ' - Create a new command');
+  console.log(chalk.bold.white('  quit') + ' - Exit SOLO-OS (or use Ctrl+C)');
   console.log();
   
   if (!context.user) {
@@ -91,8 +92,8 @@ async function handlePasswordCommand(commandName, args) {
           });
           
           // Execute the login command with password
-          const result = executeCommand('login', [username, password], context);
-          resolve({result, args: []});
+          const cmdResult = executeCommand('login', [username, password], context);
+          resolve({result: cmdResult, args: []});
         } 
         // On backspace, remove last character
         else if (ch === '\b' || ch === '\x7f') {
@@ -168,8 +169,8 @@ async function handlePasswordCommand(commandName, args) {
                 });
               } else {
                 // Execute the register command
-                const result = executeCommand('register', [username, password], context);
-                resolve({result, args: []});
+                const cmdResult = executeCommand('register', [username, password], context);
+                resolve({result: cmdResult, args: []});
               }
             }
             else if (ch === '\b' || ch === '\x7f') {
@@ -214,11 +215,18 @@ async function handleCommand(input) {
   const commandName = parts[0].toLowerCase();
   const args = parts.slice(1);
   
-  // Special case for exit
+  // Special cases for exit and clear
   if (commandName === 'exit' || commandName === 'quit') {
     console.log(chalk.green('Goodbye!'));
     rl.close();
     process.exit(0);
+    return;
+  }
+  
+  if (commandName === 'clear' || commandName === 'cls') {
+    console.clear();
+    showWelcome();
+    rl.prompt();
     return;
   }
 
@@ -230,11 +238,11 @@ async function handleCommand(input) {
       const { result } = pwResult;
       
       // Display the result
-      if (result.success) {
+      if (result && result.success) {
         if (result.result && typeof result.result === 'string') {
           console.log(result.result.replace(/\\n/g, '\n'));
         }
-      } else {
+      } else if (result) {
         console.log(chalk.red('Error: ') + result.error);
       }
       
@@ -279,6 +287,12 @@ async function startCLI() {
     
     // Register built-in commands
     require('./commands').registerBuiltinCommands();
+    
+    // Add signal handler for Ctrl+C
+    process.on('SIGINT', () => {
+      console.log(chalk.green('\nGoodbye!'));
+      process.exit(0);
+    });
     
     // Show welcome
     showWelcome();

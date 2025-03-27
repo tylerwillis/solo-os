@@ -47,16 +47,18 @@ const logo = `
 // Show welcome screen
 function showWelcome() {
   outputBox.setContent(
-    theme.primary(logo) + '\\n\\n' +
-    theme.accent('Welcome to SOLO-OS - Terminal BBS for the Solo House!') + '\\n\\n' +
+    theme.primary(logo) + '\n\n' +
+    theme.accent('Welcome to SOLO-OS - Terminal BBS for the Solo House!') + '\n\n' +
     theme.secondary('Type') + ' ' + theme.highlight('help') + ' ' + 
-    theme.secondary('to see available commands') + '\\n\\n' +
-    theme.info('Popular commands:') + '\\n' +
-    theme.highlight('  post (p)') + ' - Create a bulletin board post\\n' +
-    theme.highlight('  guest (g)') + ' - Sign the guestbook\\n' +
-    theme.highlight('  make (m)') + ' - Create a new command\\n\\n' +
-    theme.dim('Not logged in. Use') + ' ' + theme.highlight('login <username>') + ' ' + 
-    theme.dim('to log in or') + ' ' + theme.highlight('guest') + ' ' + theme.dim('to continue as a visitor')
+    theme.secondary('to see available commands') + '\n\n' +
+    theme.info('Popular commands:') + '\n' +
+    theme.highlight('  post (p)') + ' - Create a bulletin board post\n' +
+    theme.highlight('  guest (g)') + ' - Sign the guestbook\n' +
+    theme.highlight('  make (m)') + ' - Create a new command\n' +
+    theme.highlight('  quit') + ' - Exit SOLO-OS (or use Ctrl+C)\n\n' +
+    (context.user ? '' : 
+      theme.dim('Not logged in. Use') + ' ' + theme.highlight('login <username>') + ' ' + 
+      theme.dim('to log in or') + ' ' + theme.highlight('guest') + ' ' + theme.dim('to continue as a visitor'))
   );
   screen.render();
 }
@@ -149,7 +151,20 @@ function initializeUI() {
 
   // Configure key handlers
   screen.key(['escape', 'q', 'C-c'], () => {
-    return process.exit(0);
+    // Clean up blessed/screen
+    screen.destroy();
+    console.log(chalk.green('Goodbye!'));
+    // Exit the process
+    process.exit(0);
+  });
+  
+  // Also listen for SIGINT at this level
+  process.on('SIGINT', () => {
+    // Clean up blessed/screen
+    if (screen) screen.destroy();
+    console.log(chalk.green('\nGoodbye!'));
+    // Exit the process
+    process.exit(0);
   });
 
   commandInput.key('enter', () => {
@@ -197,8 +212,11 @@ function handleCommand(input) {
 
 // Append text to the output box
 function appendToOutput(text) {
+  // Replace literal \n with actual newlines
+  const processedText = text.replace(/\\n/g, '\n');
+  
   const currentContent = outputBox.getContent();
-  outputBox.setContent(currentContent + '\\n\\n' + text);
+  outputBox.setContent(currentContent + '\n\n' + processedText);
   outputBox.scrollTo(outputBox.getScrollHeight());
   screen.render();
 }
@@ -218,6 +236,14 @@ function setOutput(content) {
 
 // Start the terminal UI
 function startUI(options = {}) {
+  // Make sure we capture SIGINT/Ctrl+C globally before initializing UI
+  process.removeAllListeners('SIGINT');
+  process.on('SIGINT', () => {
+    if (screen) screen.destroy();
+    console.log(chalk.green('\nGoodbye!'));
+    process.exit(0);
+  });
+
   // Initialize the UI components
   initializeUI();
 

@@ -8,6 +8,12 @@ const { setupDatabase } = require('./db/setup');
 const { registerBuiltinCommands } = require('./commands');
 const { version } = require('../package.json');
 
+// Handle graceful exit
+process.on('SIGINT', () => {
+  console.log('\nGoodbye!');
+  process.exit(0);
+});
+
 // Initialize the application
 async function init() {
   try {

@@ -14,12 +14,20 @@ function registerHandler(args, context) {
   }
 
   // Validate arguments
-  if (args.length < 2) {
-    return theme.error('Usage: register <username> <password>');
+  if (args.length < 1) {
+    return theme.error('Usage: register <username>');
   }
 
   const username = args[0];
-  const password = args[1];
+  const password = args.length > 1 ? args[1] : null;
+  
+  // If no password provided and we're not in cli.js (which handles the password prompt)
+  if (!password) {
+    return {
+      success: false,
+      error: 'No password provided'
+    };
+  }
 
   try {
     const db = getDb();
@@ -42,7 +50,7 @@ function registerHandler(args, context) {
 function register() {
   registerCommand('register', {
     description: 'Create a new user account',
-    usage: 'register <username>',
+    usage: 'register <username> [password]',
     aliases: ['signup', 'reg'],
     handler: registerHandler
   });

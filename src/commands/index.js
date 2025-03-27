@@ -176,7 +176,18 @@ function registerBuiltinCommands() {
     }
   }
   
-  console.log(`Registered ${commandFiles.length} built-in commands`);
+  // Register exit/quit command
+  registerCommand('quit', {
+    description: 'Exit SOLO-OS',
+    usage: 'quit',
+    aliases: ['exit'],
+    handler: () => {
+      console.log('Goodbye!');
+      process.exit(0);
+    }
+  });
+  
+  console.log(`Registered ${commandFiles.length + 1} built-in commands`);
   
   // Load custom commands from database
   if (global.db) {

@@ -1,3 +1,14 @@
 #!/usr/bin/env node
 
-require('../src/index');
+// Ensure Ctrl+C works
+process.on('SIGINT', () => {
+  console.log('\nGoodbye!');
+  process.exit(0);
+});
+
+const args = process.argv.slice(2);
+if (args.includes('--cli') || args.includes('-c')) {
+  require('../src/cli-test');
+} else {
+  require('../src/index');
+}

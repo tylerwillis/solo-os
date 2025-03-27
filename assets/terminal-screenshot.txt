@@ -1,0 +1,58 @@
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                    │
+│  ███████╗ ██████╗ ██╗      ██████╗        ██████╗ ███████╗                        │
+│  ██╔════╝██╔═══██╗██║     ██╔═══██╗      ██╔═══██╗██╔════╝                        │
+│  ███████╗██║   ██║██║     ██║   ██║█████╗██║   ██║███████╗                        │
+│  ╚════██║██║   ██║██║     ██║   ██║╚════╝██║   ██║╚════██║                        │
+│  ███████║╚██████╔╝███████╗╚██████╔╝      ╚██████╔╝███████║                        │
+│  ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝        ╚═════╝ ╚══════╝                        │
+│                                                                                    │
+│ Welcome to SOLO-OS - Terminal BBS for the Solo House!                              │
+│                                                                                    │
+│ Type help to see available commands                                                │
+│                                                                                    │
+│ Popular commands:                                                                  │
+│   post (p) - Create a bulletin board post                                          │
+│   guest (g) - Sign the guestbook                                                   │
+│   make (m) - Create a new command                                                  │
+│                                                                                    │
+│ Not logged in. Use login <username> to log in or guest to continue as a visitor    │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+SOLO-OS> help
+
+Available Commands
+
+Core Commands:
+  guest (g, gb, guestbook) Sign or view the digital guestbook
+  help (h, ?)          Display available commands and usage information
+  make (m, mk)         Create and manage custom commands
+
+Communication Commands:
+  post (p)             Create and view bulletin board posts
+  announce (a)         Make or view announcements
+  status (s)           Update your status or view recent statuses
+  weekly (w, accountability) Weekly accountability posts for founders
+
+User Commands:
+  login (l)            Log in to the system
+  logout (exit)        Log out from the system
+  profile (pr, user)   View or edit user profiles
+
+SOLO-OS> login admin admin
+Successfully logged in as admin
+
+admin@SOLO-OS> post new "First Post" This is the first post on SOLO-OS!
+Post created successfully
+
+admin@SOLO-OS> post list
+Recent Posts
+
+#1: First Post
+  Posted by admin on 3/27/2025
+
+admin@SOLO-OS> status Working on my startup
+Status updated successfully
+
+admin@SOLO-OS>

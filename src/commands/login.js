@@ -51,7 +51,7 @@ function logoutHandler(args, context) {
 function register() {
   registerCommand('login', {
     description: 'Log in to the system',
-    usage: 'login <username> [password]',
+    usage: 'login <username>',
     aliases: ['l'],
     handler: loginHandler
   });

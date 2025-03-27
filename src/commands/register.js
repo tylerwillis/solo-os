@@ -42,7 +42,7 @@ function registerHandler(args, context) {
 function register() {
   registerCommand('register', {
     description: 'Create a new user account',
-    usage: 'register <username> <password>',
+    usage: 'register <username>',
     aliases: ['signup', 'reg'],
     handler: registerHandler
   });

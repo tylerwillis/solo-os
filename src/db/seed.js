@@ -10,11 +10,11 @@ const { createWeeklyPost, getCurrentWeekNumber } = require('../commands/weekly')
 function seedDatabase(db) {
   console.log('Seeding database with initial data...');
   
-  // Create default admin user if it doesn't exist
+  // Create a non-admin default user if it doesn't exist
   const adminExists = db.prepare('SELECT COUNT(*) as count FROM users WHERE username = ?').get('admin');
   if (adminExists.count === 0) {
-    createUser(db, 'admin', 'admin', true);
-    console.log('Created default admin user (username: admin, password: admin)');
+    createUser(db, 'admin', 'admin', false);
+    console.log('Created default user (username: admin, password: admin)');
   }
   
   // Create Tyler's user account

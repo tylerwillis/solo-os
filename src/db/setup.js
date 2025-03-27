@@ -111,17 +111,10 @@ function initializeSchema(db) {
   console.log('Database schema initialized.');
 }
 
-// Create admin user if none exists
-function createAdminIfNeeded(db) {
-  const adminExists = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 1').get();
-  
-  if (adminExists.count === 0) {
-    // In a real application, we would generate a secure password and prompt the user
-    // For demo purposes, we'll use a default admin/admin
-    const { createUser } = require('../models/user');
-    createUser(db, 'admin', 'admin', true);
-    console.log('Created default admin user (username: admin, password: admin)');
-  }
+// Seed database with initial data
+function seedDatabaseData(db) {
+  const { seedDatabase } = require('./seed');
+  seedDatabase(db);
 }
 
 // Setup the database
@@ -136,8 +129,8 @@ async function setupDatabase() {
     // Initialize schema
     initializeSchema(db);
     
-    // Create admin user if needed
-    createAdminIfNeeded(db);
+    // Seed database with initial data
+    seedDatabaseData(db);
     
     // Make the database connection available globally
     global.db = db;

@@ -1,0 +1,41 @@
+{
+  "name": "solo-os",
+  "version": "1.0.0",
+  "description": "Terminal-based BBS for the Solo house",
+  "main": "src/index.js",
+  "bin": {
+    "solo-os": "./bin/solo-os"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "cli": "node src/cli-test.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "chmod +x ./bin/solo-os && npm link"
+  },
+  "keywords": [
+    "bbs",
+    "terminal",
+    "cli",
+    "solo",
+    "mkdir"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0",
+    "chalk": "^4.1.2",
+    "commander": "^10.0.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "inquirer": "^8.2.5",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^9.23.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.3"
+  }
+}

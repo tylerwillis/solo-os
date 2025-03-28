@@ -11,8 +11,10 @@ const aliases = new Map();
 
 // Register a command
 function registerCommand(name, options = {}) {
+  // If command already exists, warn instead of throwing error
   if (commands.has(name)) {
-    throw new Error(`Command '${name}' is already registered`);
+    console.warn(`Command '${name}' is already registered - skipping duplicate registration`);
+    return commands.get(name);
   }
   
   // Set default options
@@ -33,7 +35,7 @@ function registerCommand(name, options = {}) {
   if (Array.isArray(commandOptions.aliases)) {
     for (const alias of commandOptions.aliases) {
       if (aliases.has(alias)) {
-        console.warn(`Alias '${alias}' for command '${name}' is already used by another command`);
+        console.warn(`Alias '${alias}' for command '${name}' is already used by another command - skipping`);
       } else {
         aliases.set(alias, name);
       }

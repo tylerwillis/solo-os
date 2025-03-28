@@ -16,20 +16,20 @@ function helpHandler(args, context) {
     }
     
     // Display detailed help for the command
-    let output = theme.primary(`Help: ${commandName}`) + '\\n\\n';
-    output += theme.secondary('Description: ') + command.description + '\\n';
-    output += theme.secondary('Usage: ') + command.usage + '\\n';
+    let output = theme.primary(`Help: ${commandName}`) + '\n\n';
+    output += theme.secondary('Description: ') + command.description + '\n';
+    output += theme.secondary('Usage: ') + command.usage + '\n';
     
     if (command.aliases && command.aliases.length > 0) {
-      output += theme.secondary('Aliases: ') + command.aliases.join(', ') + '\\n';
+      output += theme.secondary('Aliases: ') + command.aliases.join(', ') + '\n';
     }
     
     if (command.requiresAuth) {
-      output += theme.warning('Note: This command requires authentication.') + '\\n';
+      output += theme.warning('Note: This command requires authentication.') + '\n';
     }
     
     if (command.adminOnly) {
-      output += theme.warning('Note: This command requires admin privileges.') + '\\n';
+      output += theme.warning('Note: This command requires admin privileges.') + '\n';
     }
     
     return output;
@@ -38,14 +38,15 @@ function helpHandler(args, context) {
   // Otherwise, list all available commands
   const commands = listCommands(true, context.user);
   
-  let output = theme.primary('Available Commands') + '\\n\\n';
+  let output = theme.primary('Available Commands') + '\n\n';
   
   // Group commands by category
   const categories = {
     'Core': [],
-    'Communication': [],
     'User': [],
+    'Content': [],
     'Admin': [],
+    'System': [],
     'Custom': []
   };
   
@@ -55,9 +56,11 @@ function helpHandler(args, context) {
     } else if (cmd.name.startsWith('custom_')) {
       categories['Custom'].push(cmd);
     } else if (['post', 'announce', 'status', 'weekly'].includes(cmd.name)) {
-      categories['Communication'].push(cmd);
-    } else if (['login', 'logout', 'profile'].includes(cmd.name)) {
+      categories['Content'].push(cmd);
+    } else if (['user', 'login', 'logout', 'profile', 'register'].includes(cmd.name)) {
       categories['User'].push(cmd);
+    } else if (['system', 'make'].includes(cmd.name)) {
+      categories['System'].push(cmd);
     } else {
       categories['Core'].push(cmd);
     }
@@ -67,7 +70,7 @@ function helpHandler(args, context) {
   for (const [category, cmds] of Object.entries(categories)) {
     if (cmds.length === 0) continue;
     
-    output += theme.secondary(`${category} Commands:`) + '\\n';
+    output += theme.secondary(`${category} Commands:`) + '\n';
     
     for (const cmd of cmds) {
       let cmdText = theme.highlight(cmd.name);
@@ -81,10 +84,10 @@ function helpHandler(args, context) {
         cmdText += ' ';
       }
       
-      output += `  ${cmdText} ${cmd.description}\\n`;
+      output += `  ${cmdText} ${cmd.description}\n`;
     }
     
-    output += '\\n';
+    output += '\n';
   }
   
   output += theme.info('Tip: ') + 'Use ' + theme.highlight('help <command>') + ' for detailed information about a specific command.';

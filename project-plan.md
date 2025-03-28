@@ -39,8 +39,12 @@ Create a nostalgic, terminal-based bulletin board system (BBS) called "SOLO-OS" 
 
 ### 3. User Management
 - User registration with `register` command
-- Secure login with password obfuscation
-- Password confirmation during registration
+- Advanced secure login with:
+  - Complete password isolation during sensitive operations
+  - Password masking with asterisks in both terminal UI and CLI modes
+  - Prevention of keystroke leakage to command processor
+  - Robust error handling and state management
+- Password confirmation during registration with identical security measures
 - User roles (admin and regular users)
 - Administrative user management with `admin` command
 
@@ -82,7 +86,12 @@ Create a nostalgic, terminal-based bulletin board system (BBS) called "SOLO-OS" 
    - CLI-based alternative interface for compatibility
    - ANSI color support
    - Keyboard shortcut system
-   - Password obfuscation in terminal
+   - Enhanced secure password handling:
+     - Advanced password masking in both TUI and CLI modes
+     - Raw mode management for secure input processing
+     - Keypress event interception for character-by-character control
+     - Secure terminal state management throughout authentication
+     - Multi-layered input handling for maximum security and usability
 
 3. **Infrastructure**
    - Local network hosting on house server
@@ -90,23 +99,45 @@ Create a nostalgic, terminal-based bulletin board system (BBS) called "SOLO-OS" 
    - Simple installation process via npm
 
 ### Command Structure
-Core command set with abbreviations:
+Simplified and consolidated command set with subcommands:
 
-- `help` (H): View available commands
+#### Core Commands
+- `help` (H): View available commands and usage information
 - `login` (L): Log into the system with password obfuscation
 - `logout`: Log out from the system
-- `register`/`signup`/`reg`: Create a new user account
-- `post` (P): Create a new post
-- `announce` (A): Send notification to all users
-- `status` (S): Update your quick status
-- `make` (M/MK): Create a new command
-- `guest`/`guestbook`/`gb` (G): View or sign guestbook
-- `weekly` (W): Create weekly accountability post
-- `profile`/`pr`: View or update user profile
-- `admin`: Manage user roles and permissions (admin only)
-- `users`/`list-users`/`who`: List all users in the system
 - `quit`/`exit`: Safely exit the application
 - `clear`/`cls`: Clear the terminal screen
+
+#### User Commands
+- `user` (U): User management and profiles
+  - `user list`: List all users in the system (replaces `users`/`list-users`/`who`)
+  - `user profile [username]`: View a user's profile (replaces `profile`/`pr`)
+  - `user edit <field> <value>`: Edit your profile (replaces `profile edit`)
+  - `user register <username>`: Register a new user (replaces `register`/`signup`/`reg`)
+
+#### Content Commands
+- `post` (P): Create and view various types of posts
+  - `post list`: List recent posts
+  - `post view <id>`: View a specific post
+  - `post new <title> <content>`: Create a new post
+  - `post announce <message>`: Send an announcement (replaces `announce`)
+  - `post status <message>`: Update your status (replaces `status`)
+  - `post weekly`: Weekly accountability posts (replaces `weekly`)
+
+- `guest` (G): Guestbook functionality
+  - `guest list`: View guestbook entries
+  - `guest sign <name> <message>`: Sign the guestbook
+
+#### Admin Commands
+- `admin` (A): Administrative functions
+  - `admin promote <username>`: Promote user to admin (replaces `promote`)
+  - `admin demote <username>`: Demote user from admin (replaces `demote`)
+  - `admin edit <username> <field> <value>`: Edit another user's profile
+
+#### System Commands
+- `system` (SYS): System operations
+  - `system info`: Show system information
+  - `system make <name>`: Create a new command (replaces `make`)
 
 ## Implementation Status
 
@@ -157,12 +188,25 @@ Core command set with abbreviations:
 SOLO-OS is now fully implemented with all planned features, plus additional security, administrative capabilities, and improved usability. The system is available on GitHub at github.com/tylerwillis/solo-os and can be installed and run on any system with Node.js using the simple `solo` command.
 
 ### Latest Improvements
-- **Simplified Command Access**: Users can now run the application by simply typing `solo` or `solo -c` for CLI mode
-- **Enhanced User Interface**: Fixed display issues and improved text formatting
-- **Safer Authentication**: Proper password handling with security and validation
-- **Community Features**: User discovery with the `users` command
-- **Improved Exit Options**: Multiple ways to safely exit (Ctrl+C, `quit`, or `exit`)
-- **System Resilience**: Better error handling and crash prevention
+- **Consolidated Command Structure**: Simplified user experience with logical command groupings
+- **Consistent Subcommand Pattern**: All commands now follow the same `command subcommand [args]` pattern
+- **Advanced Password Security**: 
+  - Complete isolation of password input from regular command processing
+  - Secure password masking with asterisks in both TUI and CLI modes
+  - Prevention of keystroke leakage during sensitive operations
+  - Robust error handling and recovery for all authentication flows
+  - Safe terminal state management throughout login and registration
+- **Fixed Text Formatting**: Proper newline handling and consistent output formatting
+- **Enhanced Error Handling**: Better validation and error reporting
+- **System Command**: Added system info and improved command creation
+- **Backward Compatibility**: Maintained old command aliases for ease of transition
+- **Perfected CLI Password Handling**:
+  - Redesigned password input system that maintains the readline interface
+  - Fixed double character rendering during password entry
+  - Implemented proper raw mode management for secure input
+  - Eliminated issues with input after authentication
+  - Added comprehensive error recovery mechanisms
+  - Enhanced keypress event handling for secure character processing
 
 ## Future Expansion Ideas
 - Integration with productivity tools (GitHub, Notion, etc.)

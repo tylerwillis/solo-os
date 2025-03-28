@@ -1,5 +1,5 @@
 /**
- * Guest/Guestbook command - digital guestbook for visitors
+ * Guest command - simplified digital guestbook for visitors
  */
 
 const { registerCommand } = require('./index');
@@ -26,12 +26,70 @@ function listGuestbookEntries(db, limit = 20) {
   `).all(limit);
 }
 
-// Handle guestbook command
-function guestbookHandler(args, context) {
+// Handler for guest command
+function guestHandler(args, context) {
+  // If no arguments, show the guestbook
+  if (args.length === 0) {
+    return handleListGuestbook(context);
+  }
+
+  const subcommand = args[0].toLowerCase();
+  const subArgs = args.slice(1);
+
+  switch (subcommand) {
+    case 'list':
+      return handleListGuestbook(context);
+    case 'sign':
+      return handleSignGuestbook(subArgs, context);
+    default:
+      // If first argument is not a subcommand, assume it's a name for signing
+      if (args.length >= 1) {
+        return handleSignGuestbook(args, context);
+      }
+      // Otherwise show usage
+      return showGuestUsage();
+  }
+}
+
+// Show guest usage information
+function showGuestUsage() {
+  return theme.error(
+    'Usage:\n' +
+    '  guest - View the guestbook\n' +
+    '  guest list - View the guestbook\n' +
+    '  guest sign <name> <message> - Sign the guestbook\n' +
+    '  guest <name> <message> - Sign the guestbook (shorthand)'
+  );
+}
+
+// Handle listing guestbook entries
+function handleListGuestbook(context) {
+  const db = getDb();
+  const entries = listGuestbookEntries(db);
+  
+  if (entries.length === 0) {
+    return theme.info('The guestbook is empty. Be the first to sign!');
+  }
+  
+  let output = theme.primary('📖 SOLO House Guestbook 📖') + '\n\n';
+  
+  for (const entry of entries) {
+    const date = new Date(entry.created_at).toLocaleDateString();
+    output += theme.highlight(`${entry.name} (${date}):`) + '\n';
+    output += entry.message + '\n\n';
+  }
+  
+  output += theme.info(`To sign the guestbook: 'guest <your name> <your message>'`);
+  
+  return output;
+}
+
+// Handle signing the guestbook
+function handleSignGuestbook(args, context) {
   const db = getDb();
   
-  // guestbook sign <name> <message> - Add a new entry
-  if (args.length >= 3 && args[0] === 'sign') {
+  // Case: guest sign <name> <message>
+  if (args.length >= 2 && args[0] === 'sign') {
     const name = args[1];
     const message = args.slice(2).join(' ');
     
@@ -43,8 +101,8 @@ function guestbookHandler(args, context) {
     }
   }
   
-  // Special shorthand: guest <name> <message> - Add a new entry
-  if (args.length >= 2 && args[0] !== 'view' && args[0] !== 'list') {
+  // Case: guest <name> <message>
+  if (args.length >= 2) {
     const name = args[0];
     const message = args.slice(1).join(' ');
     
@@ -56,32 +114,16 @@ function guestbookHandler(args, context) {
     }
   }
   
-  // Default: list guestbook entries
-  const entries = listGuestbookEntries(db);
-  
-  if (entries.length === 0) {
-    return theme.info('The guestbook is empty. Be the first to sign!');
-  }
-  
-  let output = theme.primary('📖 SOLO House Guestbook 📖') + '\\n\\n';
-  
-  for (const entry of entries) {
-    const date = new Date(entry.created_at).toLocaleDateString();
-    output += theme.highlight(`${entry.name} (${date}):`) + '\\n';
-    output += entry.message + '\\n\\n';
-  }
-  
-  output += theme.info(`To sign the guestbook: 'guest <your name> <your message>'`);
-  
-  return output;
+  // Not enough arguments
+  return theme.error('Usage: guest <name> <message> - Sign the guestbook');
 }
 
 function register() {
   registerCommand('guest', {
     description: 'Sign or view the digital guestbook',
-    usage: 'guest [name] [message] | guest sign <name> <message>',
+    usage: 'guest | guest sign <name> <message> | guest <name> <message>',
     aliases: ['g', 'gb', 'guestbook'],
-    handler: guestbookHandler
+    handler: guestHandler
   });
 }
 
